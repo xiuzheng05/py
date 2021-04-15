@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.McNewsMapper">
+    
+    <resultMap type="McNews" id="McNewsResult">
+        <result property="id"    column="id"    />
+        <result property="title"    column="title"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="pic"    column="pic"    />
+        <result property="context"    column="context"    />
+        <result property="type"    column="type"    />
+    </resultMap>
+
+    <sql id="selectMcNewsVo">
+        select id, title, create_time, pic, context, type from mc_news
+    </sql>
+
+    <select id="selectMcNewsList" parameterType="McNews" resultMap="McNewsResult">
+        <include refid="selectMcNewsVo"/>
+        <where>  
+            <if test="title != null  and title != ''"> and title = #{title}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+        </where>
+    </select>
+    
+    <select id="selectMcNewsById" parameterType="String" resultMap="McNewsResult">
+        <include refid="selectMcNewsVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertMcNews" parameterType="McNews">
+        insert into mc_news
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+            <if test="title != null and title != ''">title,</if>
+            create_time,
+            <if test="pic != null and pic != ''">pic,</if>
+            <if test="context != null">context,</if>
+            <if test="type != null and type != ''">type,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+           replace(uuid(),"-",""),
+            <if test="title != null and title != ''">#{title},</if>
+            now(),
+            <if test="pic != null and pic != ''">#{pic},</if>
+            <if test="context != null">#{context},</if>
+            <if test="type != null and type != ''">#{type},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMcNews" parameterType="McNews">
+        update mc_news
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="pic != null and pic != ''">pic = #{pic},</if>
+            <if test="context != null">context = #{context},</if>
+            <if test="type != null and type != ''">type = #{type},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMcNewsById" parameterType="String">
+        delete from mc_news where id = #{id}
+    </delete>
+
+    <delete id="deleteMcNewsByIds" parameterType="String">
+        delete from mc_news where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
